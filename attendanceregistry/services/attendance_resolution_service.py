@@ -48,6 +48,7 @@ class AttendanceResolutionService:
                 "small_region_text": payload.get("small_region_text", ""),
                 "detailed_region_text": payload.get("detailed_region_text", ""),
                 "box_count": payload.get("box_count", 0),
+                "household_count": payload.get("household_count", 0),
             },
         }
         signal, _ = AttendanceSignal.objects.update_or_create(
@@ -80,12 +81,9 @@ class AttendanceResolutionService:
         return day
 
     def _resolve_dispatch_status(self, payload: dict) -> str:
-        small_region_text = str(payload.get("small_region_text", "")).strip()
         box_count = int(payload.get("box_count", 0) or 0)
-
-        if small_region_text == "00":
-            if box_count > 0:
-                return AttendanceSignal.SuggestedStatus.EXCEPTION
+        household_count = int(payload.get("household_count", 0) or 0)
+        if box_count == 0 and household_count == 0:
             return AttendanceSignal.SuggestedStatus.DAY_OFF
         return AttendanceSignal.SuggestedStatus.WORKED
 

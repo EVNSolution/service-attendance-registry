@@ -31,6 +31,7 @@ class DispatchSignalSyncItemSerializer(serializers.Serializer):
     small_region_text = serializers.CharField(required=False, allow_blank=True, default="")
     detailed_region_text = serializers.CharField(required=False, allow_blank=True, default="")
     box_count = serializers.IntegerField(min_value=0)
+    household_count = serializers.IntegerField(min_value=0)
     raw_reason_code = serializers.CharField(required=False, allow_blank=True, default="")
     raw_payload = serializers.JSONField(required=False, default=dict)
 

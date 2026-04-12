@@ -20,19 +20,20 @@ class AttendanceResolutionServiceTests(TestCase):
             "small_region_text": "10H2",
             "detailed_region_text": "10H2-가",
             "box_count": 12,
+            "household_count": 5,
             "raw_reason_code": "dispatch_upload_confirm",
             "raw_payload": {"batch_id": "batch-001"},
         }
         payload.update(overrides)
         return payload
 
-    def test_sync_dispatch_signal_marks_zero_box_count_00_row_as_day_off(self) -> None:
+    def test_sync_dispatch_signal_marks_zero_box_and_household_row_as_day_off(self) -> None:
         days = self.service.sync_dispatch_signals(
             [
                 self._signal(
-                    small_region_text="00",
-                    detailed_region_text="",
+                    detailed_region_text="배송없음",
                     box_count=0,
+                    household_count=0,
                 )
             ]
         )
@@ -41,18 +42,17 @@ class AttendanceResolutionServiceTests(TestCase):
         self.assertEqual(days[0].final_status, AttendanceDay.FinalStatus.DAY_OFF)
         self.assertEqual(AttendanceSignal.objects.count(), 1)
 
-    def test_sync_dispatch_signal_marks_positive_box_count_00_row_as_exception(self) -> None:
+    def test_sync_dispatch_signal_marks_positive_household_row_as_worked(self) -> None:
         days = self.service.sync_dispatch_signals(
             [
                 self._signal(
-                    small_region_text="00",
-                    detailed_region_text="휴무",
-                    box_count=9,
+                    box_count=0,
+                    household_count=1,
                 )
             ]
         )
 
-        self.assertEqual(days[0].final_status, AttendanceDay.FinalStatus.EXCEPTION)
+        self.assertEqual(days[0].final_status, AttendanceDay.FinalStatus.WORKED)
 
     def test_sync_dispatch_signals_roll_up_multiple_rows_for_same_driver_day(self) -> None:
         days = self.service.sync_dispatch_signals(
@@ -60,8 +60,8 @@ class AttendanceResolutionServiceTests(TestCase):
                 self._signal(source_reference="batch-001:row-1", box_count=4),
                 self._signal(
                     source_reference="batch-001:row-2",
-                    small_region_text="00",
                     box_count=0,
+                    household_count=0,
                 ),
             ]
         )

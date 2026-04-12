@@ -45,9 +45,10 @@ class AttendanceApiTests(TestCase):
                         "driver_id": self.driver_id,
                         "attendance_date": self.attendance_date,
                         "source_reference": "batch-001:row-1",
-                        "small_region_text": "00",
-                        "detailed_region_text": "",
+                        "small_region_text": "10H2",
+                        "detailed_region_text": "배송없음",
                         "box_count": 0,
+                        "household_count": 0,
                         "raw_reason_code": "dispatch_upload_confirm",
                         "raw_payload": {"batch_id": "batch-001"},
                     }
