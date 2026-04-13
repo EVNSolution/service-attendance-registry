@@ -6,10 +6,12 @@ from attendanceregistry.views import (
     AttendanceDayListView,
     DispatchSignalSyncView,
     HealthView,
+    MyAttendanceDayListView,
 )
 
 urlpatterns = [
     path("days/", AttendanceDayListView.as_view(), name="attendance-day-list"),
+    path("me/days/", MyAttendanceDayListView.as_view(), name="attendance-me-day-list"),
     path("days/<uuid:attendance_day_id>/", AttendanceDayDetailView.as_view(), name="attendance-day-detail"),
     path("internal/dispatch-signals:sync/", DispatchSignalSyncView.as_view(), name="dispatch-signal-sync"),
     path("internal/days:bulk-lookup/", AttendanceBulkLookupView.as_view(), name="attendance-day-bulk-lookup"),

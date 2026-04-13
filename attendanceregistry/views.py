@@ -1,5 +1,6 @@
 from django.db.models import Q
 from rest_framework import generics
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -10,6 +11,8 @@ from attendanceregistry.serializers import (
     AttendanceBulkLookupRequestSerializer,
     AttendanceDaySerializer,
     DispatchSignalSyncRequestSerializer,
+    MyAttendanceDaysQuerySerializer,
+    MyAttendanceDaysResponseSerializer,
 )
 from attendanceregistry.services.attendance_resolution_service import AttendanceResolutionService
 
@@ -86,3 +89,34 @@ class AttendanceBulkLookupView(APIView):
 
         days = AttendanceDay.objects.filter(query).order_by("attendance_date", "driver_id")
         return Response({"days": AttendanceDaySerializer(days, many=True).data})
+
+
+class MyAttendanceDayListView(APIView):
+    permission_classes = [AuthenticatedReadAdminWrite]
+
+    def get(self, request):
+        principal = request.user
+        if getattr(principal, "active_account_type", None) != "driver" or not getattr(
+            principal, "driver_id", None
+        ):
+            raise PermissionDenied("Driver session required.")
+
+        query_serializer = MyAttendanceDaysQuerySerializer(data=request.query_params)
+        query_serializer.is_valid(raise_exception=True)
+
+        queryset = AttendanceDay.objects.filter(driver_id=principal.driver_id)
+        date_from = query_serializer.validated_data.get("date_from")
+        date_to = query_serializer.validated_data.get("date_to")
+        if date_from is not None:
+            queryset = queryset.filter(attendance_date__gte=date_from)
+        if date_to is not None:
+            queryset = queryset.filter(attendance_date__lte=date_to)
+        queryset = queryset.order_by("-attendance_date")
+
+        response_serializer = MyAttendanceDaysResponseSerializer(
+            {
+                "driver_id": principal.driver_id,
+                "days": queryset,
+            }
+        )
+        return Response(response_serializer.data)

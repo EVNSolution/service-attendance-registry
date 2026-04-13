@@ -11,6 +11,10 @@ class AuthenticatedPrincipal:
     account_id: str
     email: str
     role: str
+    active_account_id: str | None = None
+    active_account_type: str | None = None
+    company_id: str | None = None
+    driver_id: str | None = None
 
     @property
     def is_authenticated(self) -> bool:
@@ -60,5 +64,9 @@ class JWTAuthentication(BaseAuthentication):
             account_id=subject,
             email=payload.get("email", ""),
             role=payload.get("role", "user"),
+            active_account_id=payload.get("active_account_id"),
+            active_account_type=payload.get("active_account_type"),
+            company_id=payload.get("company_id"),
+            driver_id=payload.get("driver_id"),
         )
         return principal, payload
