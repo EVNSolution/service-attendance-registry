@@ -1,0 +1,11 @@
+{
+  "workload_id": "service-attendance-registry",
+  "workload_class": "core-api",
+  "entry_impact": false,
+  "public_api_contract_impact": false,
+  "read_model_impact": true,
+  "async_event_impact": false,
+  "runtime_config_gate": true,
+  "depends_on_workloads": [],
+  "expands_to_workloads": ["service-settlement-operations-view"]
+}

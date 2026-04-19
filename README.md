@@ -30,9 +30,15 @@
 
 ## Image Build / Deploy Contract
 
+- prod contract is build, test, and immutable image publish only
+- production runtime rollout ownership belongs to `runtime-prod-release`
+- build and publish auth uses `ECR_BUILD_AWS_ROLE_ARN` plus shared `AWS_REGION`
+
+
 - GitHub Actions workflow 이름은 `Build service-attendance-registry image` 다.
 - workflow는 immutable `service-attendance-registry:<sha>` 이미지를 ECR로 publish 한다.
-- shared ECS deploy, ALB, ACM, Route53 관리는 `../infra-ev-dashboard-platform/` 이 소유한다.
+- runtime rollout은 `../runtime-prod-release/` 가 소유한다.
+- production runtime shape와 canonical inventory는 `../runtime-prod-platform/` 이 소유한다.
 
 ## Environment Files And Safety Notes
 
